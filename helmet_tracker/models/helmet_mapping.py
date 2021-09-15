@@ -80,3 +80,43 @@ def dist_rot(tracking_df, a2):
     player_arr = tracking_df.sort_values('x_rot')['player'].values
     players = np.delete(player_arr, min_idx)
     return min_dist, players
+
+
+def mapping_df(args):
+    video_frame, df = args
+    gameKey, playID, view, frame = video_frame.split('_')
+    gameKey = int(gameKey)
+    playID = int(playID)
+    frame = int(frame)
+    this_tracking = tracking[(tracking['gameKey'] == gameKey) & (
+        tracking['playID'] == playID)]
+    est_frame = find_nearest(this_tracking.est_frame.values, frame)
+    this_tracking = this_tracking[this_tracking['est_frame'] == est_frame]
+    len_this_tracking = len(this_tracking)
+    df['center_h_p'] = (df['left']+df['width']/2).astype(int)
+    df['center_h_m'] = (df['left']+df['width']/2).astype(int)*-1
+    df = df[df['conf'] > CONF_THRE].copy()
+    if len(df) > len_this_tracking:
+        df = df.tail(len_this_tracking)
+    df_p = df.sort_values('center_h_p').copy()
+    df_m = df.sort_values('center_h_m').copy()
+
+    if view == 'Endzone':
+        this_tracking['x'], this_tracking['y'] = this_tracking['y'].copy(
+        ), this_tracking['x'].copy()
+    a2_p = df_p['center_h_p'].values
+    a2_m = df_m['center_h_m'].values
+
+    min_dist_p, min_detete_idx_p = dist_rot(this_tracking, a2_p)
+    min_dist_m, min_detete_idx_m = dist_rot(this_tracking, a2_m)
+    if min_dist_p < min_dist_m:
+        min_dist = min_dist_p
+        min_detete_idx = min_detete_idx_p
+        tgt_df = df_p
+    else:
+        min_dist = min_dist_m
+        min_detete_idx = min_detete_idx_m
+        tgt_df = df_m
+    #print(video_frame, len(this_tracking), len(df), len(df[df['conf']>CONF_THRE]), this_tracking['x'].mean(), min_dist_p, min_dist_m, min_dist)
+    tgt_df['label'] = min_detete_idx
+    return tgt_df[['video_frame', 'left', 'width', 'top', 'height', 'label']]
