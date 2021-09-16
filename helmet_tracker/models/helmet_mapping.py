@@ -27,6 +27,27 @@ max_iter = 2000
 
 
 def dist_for_different_len(a1, a2):
+    '''
+    Args:
+        a1: 1-d np.array
+            Player positions according to NGS tracking data.  Each
+            element corresponds to a player.
+
+        a2: 1-d np.array
+            Player positions according to baseline helmet detection.  Each
+            element corresponds to a player.
+
+    Returns:
+        min_dist: float
+            The difference (Frobenius norm) in players positions in 
+            some direction as according to NGS tracking and as according
+            to baseline helmet detection model.
+
+        min_detete_idx: tuple
+            Indices of player position left out of the NGS tracking data such 
+            that the difference with the baseline helmet detection is
+            minimised.
+    '''
     assert len(a1) >= len(a2), f'{len(a1)}, {len(a2)}'
     len_diff = len(a1) - len(a2)
     a2 = norm_arr(a2)
