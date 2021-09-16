@@ -82,8 +82,7 @@ def dist_rot(tracking_df, a2):
     return min_dist, players
 
 
-def mapping_df(args):
-    video_frame, df, tracking = args
+def mapping_df(video_frame, df, tracking, conf_thre=0.3):
 
     gameKey, playID, view, frame = video_frame.split('_')
     gameKey = int(gameKey)
@@ -99,7 +98,7 @@ def mapping_df(args):
         this_tracking['x'], this_tracking['y'] = this_tracking['y'].copy(
         ), this_tracking['x'].copy()
 
-    df = df[df['conf'] > CONF_THRE].copy()
+    df = df[df['conf'] > conf_thre].copy()
     if len(df) > len_this_tracking:
         df = df.tail(len_this_tracking)
     df['center_h_p'] = (df['left']+df['width']/2).astype(int)
