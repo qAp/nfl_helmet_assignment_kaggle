@@ -64,7 +64,6 @@ def dist_for_different_len(a1, a2):
     else:
         min_dist = 10000
         min_detete_idx = None
-        cnt = 0
 
         # All combinations of players that can be left out of a1 to keep
         # the number of players left equal to the number of helmets.
