@@ -37,7 +37,7 @@ def plot_one_box(x, im, color=None, label=None, line_thickness=3):
 
 
 def deepsort_helmets(video_data,
-                     video_dir,
+                     video_pth,
                      deepsort_config='deepsort.yaml',
                      plot=False,
                      plot_frames=[]):
@@ -64,7 +64,7 @@ def deepsort_helmets(video_data,
 
         xywhs = d[['x', 'y', 'width', 'height']].values
 
-        cap = cv2.VideoCapture(f'{video_dir}/{myvideo}.mp4')
+        cap = cv2.VideoCapture(f'{video_pth}.mp4')
         cap.set(cv2.CAP_PROP_POS_FRAMES, frame-1)  # optional
         success, image = cap.read()
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
