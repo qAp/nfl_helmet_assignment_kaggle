@@ -64,7 +64,7 @@ def deepsort_helmets(video_data,
 
         xywhs = d[['x', 'y', 'width', 'height']].values
 
-        cap = cv2.VideoCapture(f'{video_pth}.mp4')
+        cap = cv2.VideoCapture(video_pth)
         cap.set(cv2.CAP_PROP_POS_FRAMES, frame-1)  # optional
         success, image = cap.read()
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
