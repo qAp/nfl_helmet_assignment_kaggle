@@ -1,8 +1,9 @@
 
 import random
 import cv2
-from deepsort.deepsort import DeepSort
-from utils.parser import get_config
+# from deepsort.deepsort import DeepSort
+# from utils.parser import get_config
+
 
 
 """
