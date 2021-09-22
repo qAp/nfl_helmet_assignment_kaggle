@@ -1,6 +1,8 @@
 
+
 import random
 import cv2
+from tqdm.auto import tqdm
 from deep_sort.deep_sort import DeepSort
 from utils.parser import get_config
 
