@@ -11,14 +11,14 @@ Helper functions from yolov5 to plot deepsort labels.
 """
 
 
-# def compute_color_for_id(label):
-#     """
-#     Simple function that adds fixed color depending on the id
-#     """
-#     palette = (2 ** 11 - 1, 2 ** 15 - 1, 2 ** 20 - 1)
+def compute_color_for_id(label):
+    """
+    Simple function that adds fixed color depending on the id
+    """
+    palette = (2 ** 11 - 1, 2 ** 15 - 1, 2 ** 20 - 1)
 
-#     color = [int((p * (label ** 2 - label + 1)) % 255) for p in palette]
-#     return tuple(color)
+    color = [int((p * (label ** 2 - label + 1)) % 255) for p in palette]
+    return tuple(color)
 
 
 # def plot_one_box(x, im, color=None, label=None, line_thickness=3):
