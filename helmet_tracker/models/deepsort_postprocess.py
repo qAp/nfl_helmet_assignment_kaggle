@@ -9,7 +9,7 @@ from tqdm.auto import tqdm
 from deep_sort.deep_sort import DeepSort
 from utils.parser import get_config
 
-from helmet_tracker.util import NFLAssignmentScorer
+from helmet_tracker.utils.score import NFLAssignmentScorer
 
 
 
