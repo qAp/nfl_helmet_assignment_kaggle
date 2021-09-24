@@ -224,7 +224,7 @@ class NFLAssignmentScorer:
         """
         Calculates weighted accuracy score metric.
         """
-        print(sub_labels)
+        print(':D', type(sub_labels))
         sub_labels["weight"] = sub_labels.apply(
             lambda x: weight if x[weight_col] else 1, axis=1)
         y_pred = sub_labels["isCorrect"].values
