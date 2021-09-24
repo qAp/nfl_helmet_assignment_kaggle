@@ -157,6 +157,7 @@ def add_deepsort_label_col(out):
 
 def score_vs_deepsort(myvideo, out, labels):
     # Score the base predictions compared to the deepsort postprocessed predictions.
+    print('From score_vs_deepsort')
     myvideo_mp4 = myvideo + '.mp4'
     labels_video = labels.query('video == @myvideo_mp4')
     scorer = NFLAssignmentScorer(labels_video)
