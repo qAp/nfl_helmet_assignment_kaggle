@@ -102,13 +102,25 @@ def deepsort_helmets(video_data,
             plt.imshow(im)
             plt.show()
 
-        preds_df = pd.DataFrame(outputs, columns=[
-                                'left', 'top', 'right', 'bottom', 'deepsort_cluster', 'class'])
+        preds_df = pd.DataFrame(outputs, columns=['left', 
+                                                  'top', 
+                                                  'right', 
+                                                  'bottom',
+                                                  'deepsort_cluster', 
+                                                  'class'])
         if len(preds_df) > 0:
+            # preds_df = preds_df[['left', 'top', 'deepsort_cluster']]
+
+            # d = d.sort_values(['left', 'top'])
+            # preds_df = preds_df.sort_values(['left', 'top'])
+            # d = pd.merge_asof(d, preds_df, on='left', direction='nearest',
+            #                   suffixes=('', '_deepsort'))
+
             # TODO Fix this messy merge
-            d = pd.merge_asof(d.sort_values(['left', 'top']),
-                              preds_df[['left', 'top', 'deepsort_cluster']]
-                              .sort_values(['left', 'top']), on='left', suffixes=('', '_deepsort'),
+            d = pd.merge_asof(
+                d.sort_values(['left', 'top']),
+                preds_df[['left', 'top', 'deepsort_cluster']].sort_values(['left', 'top']), 
+                on='left', suffixes=('', '_deepsort'),
                               direction='nearest')
         ds.append(d)
     dout = pd.concat(ds)
@@ -117,19 +129,24 @@ def deepsort_helmets(video_data,
 
 def add_deepsort_label_col(out):
     # Find the top occuring label for each deepsort_cluster
-    sortlabel_map = out.groupby('deepsort_cluster')['label'].value_counts() \
-        .sort_values(ascending=False).to_frame() \
-        .rename(columns={'label': 'label_count'}) \
-        .reset_index() \
-        .groupby(['deepsort_cluster']) \
+    sortlabel_map = (
+        out.groupby('deepsort_cluster')['label'].value_counts()
+        .sort_values(ascending=False).to_frame()
+        .rename(columns={'label': 'label_count'})
+        .reset_index()
+        .groupby(['deepsort_cluster'])
         .first()['label'].to_dict()
+        )
+
     # Find the # of times that label appears for the deepsort_cluster.
-    sortlabelcount_map = out.groupby('deepsort_cluster')['label'].value_counts() \
-        .sort_values(ascending=False).to_frame() \
-        .rename(columns={'label': 'label_count'}) \
-        .reset_index() \
-        .groupby(['deepsort_cluster']) \
+    sortlabelcount_map = (
+        out.groupby('deepsort_cluster')['label'].value_counts()
+        .sort_values(ascending=False).to_frame()
+        .rename(columns={'label': 'label_count'})
+        .reset_index()
+        .groupby(['deepsort_cluster'])
         .first()['label_count'].to_dict()
+        )
 
     out['label_deepsort'] = out['deepsort_cluster'].map(sortlabel_map)
     out['label_count_deepsort'] = out['deepsort_cluster'].map(
