@@ -6,6 +6,19 @@ import pandas as pd
 import numpy as np
 
 
+def ffmpeg_friendly_encode(input_path, output_path):
+    '''
+    Not all browsers support the codec, we will re-load the file at tmp_output_path
+    and convert to a codec that is more broadly readable using ffmpeg.
+    '''
+    if os.path.exists(output_path):
+        os.remove(output_path)
+    subprocess.run(
+        ["ffmpeg", "-i", input_path, "-crf", "18", "-preset",
+         "veryfast", "-vcodec", "libx264", output_path]
+    )
+
+
 def video_with_predictions(
     video_path: str, sub_labels: pd.DataFrame, max_frame=9999, freeze_impacts=True, verbose=True
 ) -> str:
