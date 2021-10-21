@@ -7,10 +7,10 @@
 
 ## Filtering out excess NGS positions
 When the angle of rotation is good, the filtering algorithm appears to filter out the correct players that are out of view in the camera:
-<img src="https://github.com/qAp/nfl_helmet_assignment_kaggle/blob/85662dac99363341185d1edf4014c86fe0ac791b/images/ngs_players_filtering/good_theta_good_filtering.png" width="500">
+<img src="https://github.com/qAp/nfl_helmet_assignment_kaggle/blob/85662dac99363341185d1edf4014c86fe0ac791b/images/ngs_players_filtering/good_theta_good_filtering.png" width="800">
 
 When the angle of rotation isn't good, the incorrect players may be left out:
-<img src="https://github.com/qAp/nfl_helmet_assignment_kaggle/blob/85662dac99363341185d1edf4014c86fe0ac791b/images/ngs_players_filtering/bad_theta_bad_filtering.png" width="500">
+<img src="https://github.com/qAp/nfl_helmet_assignment_kaggle/blob/85662dac99363341185d1edf4014c86fe0ac791b/images/ngs_players_filtering/bad_theta_bad_filtering.png" width="800">
 
 ## References
 - https://www.kaggle.com/robikscube/nfl-helmet-assignment-getting-started-guide
