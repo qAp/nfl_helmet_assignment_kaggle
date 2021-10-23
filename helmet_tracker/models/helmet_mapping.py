@@ -1,9 +1,13 @@
-
-# From: https://www.kaggle.com/its7171/nfl-baseline-simple-helmet-mapping
+'''
+Based on: 
+- https://www.kaggle.com/its7171/nfl-baseline-simple-helmet-mapping
+'''
 
 import itertools
 import random
 import numpy as np
+import pandas as pd
+from tqdm.auto import tqdm
 
 
 def find_nearest(array, value):
@@ -21,6 +25,132 @@ def norm_arr(a):
 
 def dist(a1, a2):
     return np.linalg.norm(a1-a2)
+
+
+def dist_2d(x0, y0, x1, y1):
+    '''
+    Sum of distance scores in the x and y dimension.
+    '''
+    return dist(x0, x1) + dist(y0, y1)
+
+
+def random_discard_rows(df, num_discard=0):
+    '''
+    Randomly discard a number of rows from dataframe.
+
+    Args:
+        df (pd.DataFrame): Dataframe a number of whose rows will be thrown
+            away.
+        num_discard (int): Number of rows to discard. Default: 0.
+    Returns:
+        idxs_discard (iter): Indexs of `df` at which the row is discarded.
+        df_remain (pd.DataFrame): Leftover dataframe.
+    '''
+    df = df.reset_index(drop=True).copy()
+    idxs_discard = random.sample(range(len(df)), num_discard)
+    to_discard = df.index.isin(idxs_discard)
+    df_remain = df[~to_discard].copy()
+    return idxs_discard, df_remain
+
+
+def sorted_norm_helmets_xy(df):
+    '''
+    Sort and normalise the x and y helmets coordinates 
+    (camera reference frame).
+
+    Args:
+        df (pd.DataFrame): Dataframe containing helmets data.  Must
+            contain columns 'left', 'top', 'width', and 'height'.
+    Returns:
+        x (np.array): Sorted and normalised helmets x-coordinates.
+        y (np.array): Sorted and normalised helmets y-coordinates.   
+    '''
+    x = (df['left'] + 0.5 * df['width']).values
+    x = np.sort(x)
+    x = norm_arr(x)
+
+    y = (df['top'] + df['height']).values  # the chin
+    y = np.sort(y)
+    y = norm_arr(y)
+
+    return x, y
+
+
+def sorted_norm_ngs_xy(df):
+    '''
+    Sort and normalise the x and y NGS coordinates 
+    (NGS reference frame).
+
+    Args:
+        df (pd.DataFrame): Dataframe containing NGS data.  Must
+            contain columns 'x' and 'y'.
+    Returns:
+        x (np.array): Sorted and normalised NGS x-coordinates.
+        y (np.array): Sorted and normalised NGS y-coordinates.
+    '''
+    x = df['x'].values
+    x = np.sort(x)
+    x = norm_arr(x)
+
+    y = df['y'].values
+    y = np.sort(y)
+    y = norm_arr(y)
+
+    return x, y
+
+
+def dist_2d_frame(df_hel, df_ngs, max_iter=2000):
+    '''
+    Compute positions difference between the camera and the NGS
+     reference frames.
+
+    Args:
+        df_hel (pd.DataFrame): Helmets in the camera reference
+            frame, including bounding boxes (top, left, width, height),
+            and detection confidence.
+        df_ngs (pd.DataFrame): Players in the NGS reference frame, 
+            including player position (x, y).
+        max_iter (int): Maximum number of times to randomly filter out
+            players such that number of helmets and number of players
+            are equal before position difference is computed.
+    Returns:
+        min_idxs_discard (iter, None): The indices in `df_ngs` at which
+            the player is left out in obtaining `min_dist_score`.  `None`
+            when the number of helmets and the number of players are 
+            originally equal.
+        min_dist_score (float): Minimum possible position difference
+            between the camera and NGS reference frames.
+    '''
+    # If there're more helmets than they are NGS players, take the most 
+    # confidently predicted helmets to match the number of NGS players.
+    if len(df_hel) > len(df_ngs):
+        df_hel = (df_hel
+                  .sort_values('conf', ascending=False)
+                  .iloc[:len(df_ngs)]
+                  .copy())
+    assert len(df_hel) <= len(df_ngs)
+
+    x_hel, y_hel = sorted_norm_helmets_xy(df_hel)
+
+    min_idxs_discard = None
+    min_dist_score = 999
+    if len(df_hel) == len(df_ngs):
+        x_ngs, y_ngs = sorted_norm_ngs_xy(df_ngs)
+        min_dist_score = dist_2d(x_hel, y_hel, x_ngs, y_ngs)
+    else:
+        num_discard = len(df_ngs) - len(df_hel)
+
+        for _ in tqdm(range(max_iter), total=max_iter):
+            idxs_discard, df_remain = random_discard_rows(df_ngs, num_discard)
+            assert len(df_hel) == len(df_remain)
+            x_ngs, y_ngs = sorted_norm_ngs_xy(df_remain)
+            dist_score = dist_2d(x_hel, y_hel, x_ngs, y_ngs)
+
+            if dist_score < min_dist_score:
+                min_idxs_discard = idxs_discard
+                min_dist_score = dist_score
+    
+    return min_idxs_discard, min_dist_score
 
 
 def dist_for_different_len(a1, a2):
@@ -94,6 +224,27 @@ def rotate_arr(u, t, deg=True):
     return np.dot(R, u)
 
 
+def rotate_dataframe(df, t=0, deg=True):
+    '''
+    Rotate the x and y coordinates saved in a dataframe.
+
+    Args:
+        df (pd.DataFrame): Must contain columns 'x' and 'y', the x-coordinates
+            and the y-coordinates of a set of positions.
+        t (float): Angle of rotation.  Default: 0.
+        deg (bool): `t` is in degress if True, otherwise in radians.  Default: True.
+
+    Returns:
+        df_theta (pd.DataFrame): Same as df, but with 'x' and 'y' changed after
+            rotation by angle `t`.
+    '''
+    df_theta = df.copy()
+    xy_values = df_theta[['x', 'y']].values.T  # shape (2, number of locations)
+    df_theta['x'], df_theta['y'] = rotate_arr(xy_values, t, deg)
+    return df_theta
+
+
+
 def dist_rot(tracking_df, a2):
     '''
     Rotating the NGS tracking frame bit by bit, matching and comparing
@@ -154,8 +305,10 @@ def mapping_df(video_frame, df, tracking, conf_thre=0.3):
             Baseline helmet detection output for the frame.  Each row is a 
             helmet.  Columns include things like bounding box and detection
             confidence, etc.
-        conf_thre: float
-            Confidence threshold above which to keep detected helmet.
+        tracking (pd.DataFrame): NGS tracking data for all video and frames.  Usually
+            loaded from competition csv file.
+        conf_thre (float): Confidence threshold above which to keep detected helmet.
+            Default: 0.3.
 
     Returns:
         tgt_df: pd.DataFrame
