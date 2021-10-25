@@ -140,7 +140,7 @@ def dist_2d_frame(df_hel, df_ngs, max_iter=2000):
     else:
         num_discard = len(df_ngs) - len(df_hel)
 
-        for _ in tqdm(range(max_iter), total=max_iter):
+        for _ in range(max_iter):
             idxs_discard, df_remain = random_discard_rows(df_ngs, num_discard)
             assert len(df_hel) == len(df_remain)
             x_ngs, y_ngs = sorted_norm_ngs_xy(df_remain)
