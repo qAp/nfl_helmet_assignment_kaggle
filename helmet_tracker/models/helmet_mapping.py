@@ -381,11 +381,11 @@ def dist_rot_2d(df_hel, df_ngs, ts, t_init=0):
 
     # Sort the x-cooridnates and assign players to helmets
     assert len(df_min) == len(df_hel)
-    labels = df_min.sort_values('x')['player'].values
+    label = df_min.sort_values('x')['player'].values
     df_tgt = df_hel.copy()
     df_tgt['x'] = df_tgt['left'] + 0.5 * df_tgt['width']
     df_tgt.sort_values('x', axis=0, inplace=True)
-    df_tgt['labels'] = labels
+    df_tgt['label'] = label
 
     return score_min, df_tgt
 
