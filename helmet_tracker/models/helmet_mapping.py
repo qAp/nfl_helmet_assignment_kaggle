@@ -360,7 +360,7 @@ def mapping_df(video_frame, df, tracking, conf_thre=0.3):
     return tgt_df[['video_frame', 'left', 'width', 'top', 'height', 'label']]
 
 
-def dist_rot_2d(df_hel, df_ngs, ts, t_init=t_init):
+def dist_rot_2d(df_hel, df_ngs, ts, t_init=0):
     if t_init % 360 != 0:
         df_ngs = rotate_dataframe(df_ngs, t_init)
     else: 
