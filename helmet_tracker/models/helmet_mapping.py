@@ -368,7 +368,7 @@ def dist_rot_2d(df_hel, df_ngs, ts, t_init=0):
 
     score_min = 10_000
     for t in ts:
-        df_t = rotate_dataframe(df_ngs, t=t, dep=True)
+        df_t = rotate_dataframe(df_ngs, t=t, deg=True)
         idxs_discard, dist_score = dist_2d_frame(df_hel, df_t, max_iter=1000)
 
         if dist_score < score_min:
