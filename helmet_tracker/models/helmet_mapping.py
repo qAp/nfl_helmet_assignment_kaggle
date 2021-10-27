@@ -374,10 +374,13 @@ def dist_rot_2d(df_hel, df_ngs, ts, t_init=0):
         if dist_score < score_min:
             score_min = dist_score
 
-            # NGS players with some discarded
-            df_min = df_t.reset_index(drop=True).copy()
-            to_discard = df_min.index.isin(idxs_discard)
-            df_min = df_min[~to_discard]
+            if idxs_discard is None:
+                df_min = df_t.copy()
+            else:
+                # NGS players with some discarded
+                df_min = df_t.reset_index(drop=True).copy()
+                to_discard = df_min.index.isin(idxs_discard)
+                df_min = df_min[~to_discard]
 
     # Sort the x-cooridnates and assign players to helmets
     assert len(df_min) == len(df_hel)
