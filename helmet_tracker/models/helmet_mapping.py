@@ -358,3 +358,92 @@ def mapping_df(video_frame, df, tracking, conf_thre=0.3):
     #print(video_frame, len(this_tracking), len(df), len(df[df['conf']>CONF_THRE]), this_tracking['x'].mean(), min_dist_p, min_dist_m, min_dist)
     tgt_df['label'] = min_detete_idx
     return tgt_df[['video_frame', 'left', 'width', 'top', 'height', 'label']]
+
+
+def dist_rot_2d(df_hel, df_ngs, ts, t_init=t_init):
+    if t_init % 360 != 0:
+        df_ngs = rotate_dataframe(df_ngs, t_init)
+    else: 
+        df_ngs = df_ngs.copy()
+
+    score_min = 10_000
+    for t in ts:
+        df_t = rotate_dataframe(df_ngs, t=t, dep=True)
+        idxs_discard, dist_score = dist_2d_frame(df_hel, df_t, max_iter=1000)
+
+        if dist_score < score_min:
+            score_min = dist_score
+
+            # NGS players with some discarded
+            df_min = df_t.reset_index(drop=True).copy()
+            to_discard = df_min.index.isin(idxs_discard)
+            df_min = df_min[~to_discard]
+
+    # Sort the x-cooridnates and assign players to helmets
+    assert len(df_min) == len(df_hel)
+    labels = df_min.sort_values('x')['player'].values
+    df_tgt = df_hel.copy()
+    df_tgt['x'] = df_tgt['left'] + 0.5 * df_tgt['width']
+    df_tgt.sort_values('x', axis=0, inplace=True)
+    df_tgt['labels'] = labels
+
+    return score_min, df_tgt
+
+    
+
+def mapping_df_2d(video_frame, df, tracking, conf_thre=0.3):
+    '''
+    For a video frame, assign a player number to each helmet detected
+    by the baseline helmet detection model. 
+
+    Args:
+        video_frame: str
+            Video frame ID, consisting of gameKey, playID, view, frame 
+            joined by '_'.
+        df: pd.DataFrame
+            Baseline helmet detection output for the frame.  Each row is a 
+            helmet.  Columns include things like bounding box and detection
+            confidence, etc.
+        tracking (pd.DataFrame): NGS tracking data for all video and frames.  Usually
+            loaded from competition csv file.
+        conf_thre (float): Confidence threshold above which to keep detected helmet.
+            Default: 0.3.
+
+    Returns:
+        tgt_df: pd.DataFrame
+            Each row a helmet. Columns define bounding box and player number.
+    '''
+    gameKey, playID, view, frame = video_frame.split('_')
+    gameKey = int(gameKey)
+    playID = int(playID)
+    frame = int(frame)
+
+    # Get NGS players
+    df_ngs = tracking[(tracking['gameKey'] == gameKey) & (
+        tracking['playID'] == playID)]
+    est_frame = find_nearest(df_ngs.est_frame.values, frame)
+    df_ngs = df_ngs[df_ngs['est_frame'] == est_frame]
+
+    # Get helmets
+    df_hel = df[df['conf'] > conf_thre].copy()
+    if len(df_hel) > len(df_ngs):
+        df_hel = df_hel.tail(len(df_ngs))
+
+    # Define which rotation angles to try
+    tmax = 30
+    num_t = 20
+    ts = np.linspace(-tmax, tmax, num_t)
+
+    # Compute min dist for 2 of the possible pitch sides
+    t_init = 0 if view == 'Sideline' else 90
+    min_dist_p, tgt_df_p = dist_rot_2d(df_hel, df_ngs, ts, t_init=t_init)
+    min_dist_m, tgt_df_m = dist_rot_2d(df_hel, df_ngs, ts, t_init=t_init + 180)
+
+    tgt_df = tgt_df_p if min_dist_p < min_dist_m else tgt_df_m
+
+    return tgt_df[['video_frame', 'left', 'width', 'top', 'height', 'label']]
+    
+
+
+
+
