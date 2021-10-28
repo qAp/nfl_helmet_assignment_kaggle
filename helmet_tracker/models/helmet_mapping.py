@@ -144,14 +144,24 @@ def dist_2d_frame(df_hel, df_ngs, max_iter=2000):
         for _ in range(max_iter):
             t0 = time.time()
             idxs_discard, df_remain = random_discard_rows(df_ngs, num_discard)
+            print(f'random_discard_rows: {time.time() - t0:.6f} s')
+
+            t0 = time.time()
             assert len(df_hel) == len(df_remain)
+            print(f'assert: {time.time() - t0:.6f} s')
+
+            t0 = time.time()
             x_ngs, y_ngs = sorted_norm_ngs_xy(df_remain)
+            print(f'sorted_norm_ngs_xy: {time.time() - t0:.6f} s')
+
+            t0 = time.time()
             dist_score = dist_2d(x_hel, y_hel, x_ngs, y_ngs)
+            print(f'dist_2d: {time.time() - t0:.6f} s')
 
             if dist_score < min_dist_score:
                 min_idxs_discard = idxs_discard
                 min_dist_score = dist_score
-            print(f'(2d) discard players = {time.time() - t0} s')
+
     return min_idxs_discard, min_dist_score
 
 
@@ -210,13 +220,21 @@ def dist_for_different_len(a1, a2):
         for detete_idx in del_list:
             t0 = time.time()
             this_a1 = np.delete(a1, detete_idx)
+            print(f'np.delete: {time.time() - t0:.6f} s')
+
+            t0 = time.time()
             this_a1 = norm_arr(this_a1)
+            print(f'norm_arr: {time.time() - t0:.6f} s')
+
+            t0 = time.time()
             this_dist = dist(this_a1, a2)
+            print(f'dist: {time.time() - t0:.6f} s')
+
             #print(len(a1), len(a2), this_dist)
             if min_dist > this_dist:
                 min_dist = this_dist
                 min_detete_idx = detete_idx
-            print(f'(1d) discard players = {time.time() - t0} s')
+
 
         return min_dist, min_detete_idx
 
