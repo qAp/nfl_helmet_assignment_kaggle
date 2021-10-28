@@ -139,6 +139,7 @@ def dist_2d_frame(df_hel, df_ngs, max_iter=2000):
         min_dist_score = dist_2d(x_hel, y_hel, x_ngs, y_ngs)
     else:
         num_discard = len(df_ngs) - len(df_hel)
+        print(f'Need to discard {num_discard} NGS players')
 
         for _ in range(max_iter):
             idxs_discard, df_remain = random_discard_rows(df_ngs, num_discard)
@@ -192,6 +193,7 @@ def dist_for_different_len(a1, a2):
         a1 = norm_arr(a1)
         return dist(a1, a2), ()
     else:
+        print(f'(1d) Need to discard NGS players')
         min_dist = 10000
         min_detete_idx = None
 
