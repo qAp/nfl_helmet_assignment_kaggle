@@ -2,7 +2,7 @@
 Based on: 
 - https://www.kaggle.com/its7171/nfl-baseline-simple-helmet-mapping
 '''
-
+import time
 import itertools
 import random
 import numpy as np
@@ -142,6 +142,7 @@ def dist_2d_frame(df_hel, df_ngs, max_iter=2000):
         print(f'Need to discard {num_discard} NGS players')
 
         for _ in range(max_iter):
+            t0 = time.time()
             idxs_discard, df_remain = random_discard_rows(df_ngs, num_discard)
             assert len(df_hel) == len(df_remain)
             x_ngs, y_ngs = sorted_norm_ngs_xy(df_remain)
@@ -150,7 +151,7 @@ def dist_2d_frame(df_hel, df_ngs, max_iter=2000):
             if dist_score < min_dist_score:
                 min_idxs_discard = idxs_discard
                 min_dist_score = dist_score
-    
+            print(f'(2d) discard players = {time.time() - t0} s')
     return min_idxs_discard, min_dist_score
 
 
@@ -207,6 +208,7 @@ def dist_for_different_len(a1, a2):
         # Leave out players from each combination, then match and compare with 
         # helmet positions, keeping track of the closest match.
         for detete_idx in del_list:
+            t0 = time.time()
             this_a1 = np.delete(a1, detete_idx)
             this_a1 = norm_arr(this_a1)
             this_dist = dist(this_a1, a2)
@@ -214,6 +216,7 @@ def dist_for_different_len(a1, a2):
             if min_dist > this_dist:
                 min_dist = this_dist
                 min_detete_idx = detete_idx
+            print(f'(1d) discard players = {time.time() - t0} s')
 
         return min_dist, min_detete_idx
 
