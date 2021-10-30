@@ -138,7 +138,6 @@ def dist_for_different_len(a1, a2):
         a1 = norm_arr(a1)
         return dist(a1, a2), ()
     else:
-        print(f'(1d) Need to discard NGS players')
         min_dist = 10000
         min_detete_idx = None
 
@@ -152,18 +151,9 @@ def dist_for_different_len(a1, a2):
         # Leave out players from each combination, then match and compare with 
         # helmet positions, keeping track of the closest match.
         for detete_idx in del_list:
-            t0 = time.time()
             this_a1 = np.delete(a1, detete_idx)
-            print(f'np.delete: {time.time() - t0:.6f} s')
-
-            t0 = time.time()
             this_a1 = norm_arr(this_a1)
-            print(f'norm_arr: {time.time() - t0:.6f} s')
-
-            t0 = time.time()
             this_dist = dist(this_a1, a2)
-            print(f'dist: {time.time() - t0:.6f} s')
-
             #print(len(a1), len(a2), this_dist)
             if min_dist > this_dist:
                 min_dist = this_dist
