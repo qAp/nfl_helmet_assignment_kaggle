@@ -421,8 +421,7 @@ def mapping_df_2d(video_frame, df, tracking, conf_thre=0.3):
     Args:
         video_frame (str): Consisting of game ID, play ID, and frame.
         df (pd.DataFrame): Each row a helmet, with columns such as 
-            'left', 'top', etc. for bounding boxes, 'video' for video
-            ID, and 'frame' for frame number.
+            'left', 'top', etc. for bounding boxes, for some `video_frame`.
         tracking (pd.DataFrame): NGS tracking data.  Each row a player.
             Column 'x' and 'y' for player positions.  Column 'player'
             for player numbers.
@@ -444,8 +443,7 @@ def mapping_df_2d(video_frame, df, tracking, conf_thre=0.3):
     df_ngs = df_ngs.query('est_frame==@nearest_est_frame')
 
     # Get helmets for selected video and frame
-    df_hel = df.query('video==@video and frame==@frame')
-    df_hel = df_hel[df_hel['conf'] > conf_thre].copy()
+    df_hel = df[df['conf'] > conf_thre].copy()
     if len(df_hel) > len(df_ngs):
         df_hel = df_hel.tail(len(df_ngs))
 
