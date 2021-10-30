@@ -239,6 +239,59 @@ def dist_for_different_len(a1, a2):
         return min_dist, min_detete_idx
 
 
+def dist_for_different_len_2d(xy_rot, xy_hel, max_iter=1000):
+    '''
+    Compute distance score between 2 sets of points, using their
+    (x, y) coordinates.
+
+    Args:
+        xy_rot (np.array): Each row is an NGS player.  Columns 0 and 1
+            are the x and y coordinates, respectively.  They don't need
+            to be sorted, nor normalised.
+        xy_hel (np.array): Each row a helmet.  Columns 0 and 1
+            are the x and y coordinates, respectively, sorted in ascending
+            x, and x and y are separately normalised.
+        max_iter (int): Maximum number of combinations of NGS players to
+            leave out, should there be more NGS players than there are
+            helmets in `xy_hel`.  Default: 1000
+    
+    Returns:
+        min_idxs_discard (list, tuple): Indices, corresponding to `xy_ngs`,
+            of any players discarded, in order to obtain the minimum distance
+            score.
+        min_dist_score (float): Minimum distance score.
+    '''
+    assert len(xy_rot) >= len(xy_hel)
+    num_discard = len(xy_rot) - len(xy_hel)
+
+    if num_discard == 0:
+        xy_rot = xy_rot[xy_rot[:, 0].argsort()]
+        xy_rot -= xy_rot.min(axis=0, keepdims=True)
+        xy_rot /= xy_rot.max(axis=0, keepdims=True)
+
+        min_dist_score = dist(xy_hel, xy_rot)
+        min_idxs_discard = ()
+
+    else:
+        min_dist_score = 10_000
+        min_idxs_discard = None
+        for _ in range(max_iter):
+            idxs_discard = random.sample(range(len(xy_rot)), num_discard)
+            xy = np.delete(xy_rot, idxs_discard, axis=0)
+
+            xy = xy[xy[:, 0].argsort()]
+            xy -= xy.min(axis=0, keepdims=True)
+            xy /= xy.max(axis=0, keepdims=True)
+
+            dist_score = dist(xy_hel, xy)
+
+            if dist_score < min_dist_score:
+                min_dist_score = dist_score
+                min_idxs_discard = idxs_discard
+
+    return min_idxs_discard, min_dist_score
+
+
 def rotate_arr(u, t, deg=True):
     if deg == True:
         t = np.deg2rad(t)
@@ -315,6 +368,60 @@ def dist_rot(tracking_df, a2):
     return min_dist, players
 
 
+def dist_rot_2d(df_ngs, xy_hel, t_init=0):
+    '''
+    Rotate NGS reference frame first by `t_init` degrees, then rotate bit
+    by bit, computing and recording the minimum distance score.
+
+    Args:
+        df_ngs (pd.DataFrame): Each row is an NGS player, with columns 
+            'x' and 'y', the x and y coordinates of the player.  
+            Column 'player' contains the player lables. 
+            e.g. 'H12', 'V32', etc.
+        xy_hel (np.array): Each row is a helmet.  Column 0 and 1 are the
+            x and y coordinates of the helmets, respectively. Helmets
+            should already be sorted in ascending x-coordinate.  Both
+            x and y coorindates should already be normalised separately.
+        t_init (float): Initial angle of rotation of NGS reference frame
+            in degrees.
+
+    Returns:
+        min_dist_score (float): The minimum possible distance score between 
+            the camera reference frame and the NGS reference frame. 
+        players (np.array): Player labels corresponding to the helmets in
+            `xy_hel`.
+    '''
+    df_ngs = df_ngs.copy()
+    xy_ngs = df_ngs[['x', 'y']].values
+
+    if (t_init % 360) != 0:
+        xy_ngs = rotate_arr(xy_ngs.T, t_init).T
+
+    tmax = 30
+    num_t = 20
+    ts = np.linspace(-tmax, tmax, num_t)
+
+    min_dist_score = 10_000
+    min_idxs_discard = None
+    min_xy_rot = None
+    for t in ts:
+        xy_rot = rotate_arr(xy_ngs.T, t).T
+
+        (idxs_discard,
+         dist_score) = _dist_for_different_len_2d(xy_rot, xy_hel)
+
+        if dist_score < min_dist_score:
+            min_dist_score = dist_score
+            min_idxs_discard = idxs_discard
+            min_xy_rot = xy_rot
+
+    df_ngs[['x_rot', 'y_rot']] = min_xy_rot
+    if len(min_idxs_discard) > 0:
+        df_ngs.drop(df_ngs.index[min_idxs_discard], inplace=True)
+    players = df_ngs.sort_values('x_rot')['player'].values
+    return min_dist_score, players
+
+
 def mapping_df(video_frame, df, tracking, conf_thre=0.3):
     '''
     For a video frame, assign a player number to each helmet detected
@@ -383,91 +490,71 @@ def mapping_df(video_frame, df, tracking, conf_thre=0.3):
     return tgt_df[['video_frame', 'left', 'width', 'top', 'height', 'label']]
 
 
-def dist_rot_2d(df_hel, df_ngs, ts, t_init=0):
-    if t_init % 360 != 0:
-        df_ngs = rotate_dataframe(df_ngs, t_init)
-    else: 
-        df_ngs = df_ngs.copy()
-
-    score_min = 10_000
-    for t in ts:
-        df_t = rotate_dataframe(df_ngs, t=t, deg=True)
-        idxs_discard, dist_score = dist_2d_frame(df_hel, df_t, max_iter=1000)
-
-        if dist_score < score_min:
-            score_min = dist_score
-
-            if idxs_discard is None:
-                df_min = df_t.copy()
-            else:
-                # NGS players with some discarded
-                df_min = df_t.reset_index(drop=True).copy()
-                to_discard = df_min.index.isin(idxs_discard)
-                df_min = df_min[~to_discard]
-
-    # Sort the x-cooridnates and assign players to helmets
-    assert len(df_min) == len(df_hel)
-    label = df_min.sort_values('x')['player'].values
-    df_tgt = df_hel.copy()
-    df_tgt['x'] = df_tgt['left'] + 0.5 * df_tgt['width']
-    df_tgt.sort_values('x', axis=0, inplace=True)
-    df_tgt['label'] = label
-
-    return score_min, df_tgt
-
-    
-
 def mapping_df_2d(video_frame, df, tracking, conf_thre=0.3):
     '''
-    For a video frame, assign a player number to each helmet detected
-    by the baseline helmet detection model. 
+    Map NGS players to helmet bounding boxes.
 
     Args:
-        video_frame: str
-            Video frame ID, consisting of gameKey, playID, view, frame 
-            joined by '_'.
-        df: pd.DataFrame
-            Baseline helmet detection output for the frame.  Each row is a 
-            helmet.  Columns include things like bounding box and detection
-            confidence, etc.
-        tracking (pd.DataFrame): NGS tracking data for all video and frames.  Usually
-            loaded from competition csv file.
-        conf_thre (float): Confidence threshold above which to keep detected helmet.
-            Default: 0.3.
+        video_frame (str): Consisting of game ID, play ID, and frame.
+        df (pd.DataFrame): Each row a helmet, with columns such as 
+            'left', 'top', etc. for bounding boxes, 'video' for video
+            ID, and 'frame' for frame number.
+        tracking (pd.DataFrame): NGS tracking data.  Each row a player.
+            Column 'x' and 'y' for player positions.  Column 'player'
+            for player numbers.
+        conf_thre (float): Helmet detection threshold below which helmets
+            are not considered for the mapping process.
 
     Returns:
-        tgt_df: pd.DataFrame
-            Each row a helmet. Columns define bounding box and player number.
+        df_tgt (pd.DataFrame): Helmets for `video_frame`.  Each row a helmet.
+            Columns 'left', 'top', 'width', 'height', and 'label', where
+            'label' are player numbers, such as 'H23', and 'V15', etc.
     '''
     gameKey, playID, view, frame = video_frame.split('_')
     gameKey = int(gameKey)
     playID = int(playID)
     frame = int(frame)
 
-    # Get NGS players
-    df_ngs = tracking[(tracking['gameKey'] == gameKey) & (
-        tracking['playID'] == playID)]
-    est_frame = find_nearest(df_ngs.est_frame.values, frame)
-    df_ngs = df_ngs[df_ngs['est_frame'] == est_frame]
+    df_ngs = tracking.query('gameKey==@gameKey and playID==@playID')
+    nearest_est_frame = find_nearest(df_ngs['est_frame'].values, frame)
+    df_ngs = df_ngs.query('est_frame==@nearest_est_frame')
 
-    # Get helmets
-    df_hel = df[df['conf'] > conf_thre].copy()
+    # Get helmets for selected video and frame
+    df_hel = df.query('video==@video and frame==@frame')
+    df_hel = df_hel[df_hel['conf'] > conf_thre].copy()
     if len(df_hel) > len(df_ngs):
         df_hel = df_hel.tail(len(df_ngs))
 
-    # Define which rotation angles to try
-    tmax = 30
-    num_t = 20
-    ts = np.linspace(-tmax, tmax, num_t)
+    # Helmet centres
+    df_hel['helmet_center_x'] = (df_hel['left'] + df_hel['width'] / 2)
+    df_hel['helmet_center_y'] = (df_hel['top'] + df_hel['height'] / 2)
 
-    # Compute min dist for 2 of the possible pitch sides
+    # Sort helmets by their x-coordinate
+    df_hel.sort_values('helmet_center_x', inplace=True)
+
+    # Helmets' (x, y) coordinates
+    xy_hel = df_hel[['helmet_center_x', 'helmet_center_y']].values
+    # Flip y-axis to get same right-handedness as NGS reference frame
+    xy_hel[:, 1] *= -1
+    xy_hel -= xy_hel.min(axis=0, keepdims=True)
+    xy_hel /= xy_hel.max(axis=0, keepdims=True)
+
     t_init = 0 if view == 'Sideline' else 90
-    min_dist_p, tgt_df_p = dist_rot_2d(df_hel, df_ngs, ts, t_init=t_init)
-    min_dist_m, tgt_df_m = dist_rot_2d(df_hel, df_ngs, ts, t_init=t_init + 180)
 
-    tgt_df = tgt_df_p if min_dist_p < min_dist_m else tgt_df_m
+    dist_p, players_p = _dist_rot_2d(df_ngs, xy_hel, t_init)
+    dist_m, players_m = _dist_rot_2d(df_ngs, xy_hel, t_init + 180)
 
-    return tgt_df[['video_frame', 'left', 'width', 'top', 'height', 'label']]
+    if dist_p < dist_m:
+        min_dist = dist_p
+        min_players = players_p
+    else:
+        min_dist = dist_m
+        min_players = players_m
+
+    df_tgt = df_hel.copy()
+    df_tgt['label'] = min_players
+    return df_tgt[['video_frame', 'left', 'width', 'top', 'height', 'label']]
+
     
 
 
