@@ -332,7 +332,7 @@ def dist_rot_2d(df_ngs, xy_hel, t_init=0):
         xy_rot = rotate_arr(xy_ngs.T, t).T
 
         (idxs_discard,
-         dist_score) = _dist_for_different_len_2d(xy_rot, xy_hel)
+         dist_score) = dist_for_different_len_2d(xy_rot, xy_hel)
 
         if dist_score < min_dist_score:
             min_dist_score = dist_score
@@ -463,8 +463,8 @@ def mapping_df_2d(video_frame, df, tracking, conf_thre=0.3):
 
     t_init = 0 if view == 'Sideline' else 90
 
-    dist_p, players_p = _dist_rot_2d(df_ngs, xy_hel, t_init)
-    dist_m, players_m = _dist_rot_2d(df_ngs, xy_hel, t_init + 180)
+    dist_p, players_p = dist_rot_2d(df_ngs, xy_hel, t_init)
+    dist_m, players_m = dist_rot_2d(df_ngs, xy_hel, t_init + 180)
 
     if dist_p < dist_m:
         min_dist = dist_p
