@@ -1,8 +1,9 @@
-# Code for NFL Health & Safety - Helmet Assignment Kaggle
+# A solution for NFL Health & Safety - Helmet Assignment Kaggle
 
 ## TODOs
-- [] Tune helmet tracking
-- [] Tune FairMOT
+- [x] Tune helmet mapping
+- [x] Use y-coordinate in helmet mapping.
+- [x] Tune FairMOT
 
 
 ## Filtering out excess NGS positions
@@ -17,21 +18,22 @@ The competition data tells us whether the camera is on a sideline or an endzone,
 
 Suppose we know that the camera is on an endzone, then we need to try both the home and away endzone.  However, only one of these is where the camera actually is, so you would expect that the computed distance score to be smaller for the true side.  
 
-Unfortunately, this does not appear to be obvious.  Below are the minimum distance scores for the 4 possible true pitch sides (e.g. home sideline: 0 degrees; home endzone: 90 degrees; etc.), in selected video frames.  The corresponding perturbation angle is shown in the right panel.  The blue lines are for the true side, where the NGS reference frame is more or less aligned with a camera positioned on this side.  The orange lines are for the side opposite the true side.  
+Below are the minimum distance scores for the 4 possible true pitch sides (e.g. home sideline: 0 degrees; home endzone: 90 degrees; etc.), in selected video frames.  The corresponding perturbation angle is shown in the right panel.  The blue lines are for the true side, where the NGS reference frame is more or less aligned with a camera positioned on this side.  The orange lines are for the side opposite the true side.  
 
 True pitch side for camera: home sideline, NGS rotated by 0 deg.
-<img src="https://github.com/qAp/nfl_helmet_assignment_kaggle/blob/84e3820869f84d85caa04b4a32ff45a711ffdd02/images/checking_this_or_that_side/this_that_true0.png" width="800">
+<img src="https://github.com/qAp/nfl_helmet_assignment_kaggle/blob/5290172436e765c322372f86aed78733b10a8378/images/home_or_away/home_away_tinit0.png" width="800">
 
 True pitch side for camera: home endzone, NGS rotated by 90 deg.
-<img src="https://github.com/qAp/nfl_helmet_assignment_kaggle/blob/04b2a9c5711ca38898c8bd3353c358dc81c4b243/images/checking_this_or_that_side/this_that_true90.png" width="800">
+<img src="https://github.com/qAp/nfl_helmet_assignment_kaggle/blob/5290172436e765c322372f86aed78733b10a8378/images/home_or_away/home_away_tinit90.png" width="800">
 
 True pitch side for camera: away sideline, NGS rotated by 180 deg.
-<img src="https://github.com/qAp/nfl_helmet_assignment_kaggle/blob/04b2a9c5711ca38898c8bd3353c358dc81c4b243/images/checking_this_or_that_side/this_that_true180.png" width="800">
+<img src="https://github.com/qAp/nfl_helmet_assignment_kaggle/blob/5290172436e765c322372f86aed78733b10a8378/images/home_or_away/home_away_tinit180.png" width="800">
 
 True pitch side for camera: away endzone, NGS rotated by 270 deg.
-<img src="https://github.com/qAp/nfl_helmet_assignment_kaggle/blob/04b2a9c5711ca38898c8bd3353c358dc81c4b243/images/checking_this_or_that_side/this_that_true270.png" width="800">
+<img src="https://github.com/qAp/nfl_helmet_assignment_kaggle/blob/5290172436e765c322372f86aed78733b10a8378/images/home_or_away/home_away_tinit270.png" width="800">
 
-I expected the blue lines of the distance score to be consistently below the orange lines, making it obvious to determine which the correct side is, but these overlap a lot over the duration of the video.
+The blue lines of the distance score appear to be mostly below the orange lines, making it obvious to determine which the correct side is, but there are some overlaps, perhaps when the players are in a near symmetrical configuration.
+
 
 ## References
 - https://www.kaggle.com/robikscube/nfl-helmet-assignment-getting-started-guide
