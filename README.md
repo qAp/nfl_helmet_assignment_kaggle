@@ -41,43 +41,11 @@ The blue lines of the distance score appear to be mostly below the orange lines,
 
 
 ## Evaluation on selected train samples
-<style type="text/css">
-.tg  {border-collapse:collapse;border-color:#ccc;border-spacing:0;}
-.tg td{background-color:#fff;border-color:#ccc;border-style:solid;border-width:1px;color:#333;
-  font-family:Arial, sans-serif;font-size:14px;overflow:hidden;padding:10px 5px;word-break:normal;}
-.tg th{background-color:#f0f0f0;border-color:#ccc;border-style:solid;border-width:1px;color:#333;
-  font-family:Arial, sans-serif;font-size:14px;font-weight:normal;overflow:hidden;padding:10px 5px;word-break:normal;}
-.tg .tg-1wig{font-weight:bold;text-align:left;vertical-align:top}
-.tg .tg-0pky{border-color:inherit;text-align:left;vertical-align:top}
-.tg .tg-0lax{text-align:left;vertical-align:top}
-</style>
-<table class="tg">
-<thead>
-  <tr>
-    <th class="tg-0pky"></th>
-    <th class="tg-0pky">hmap</th>
-    <th class="tg-0lax">hmap + pretrained DeepSORT<br></th>
-    <th class="tg-0lax">hmap + pretrained FairMOT</th>
-    <th class="tg-0lax">hmap + finetuned FairMOT</th>
-  </tr>
-</thead>
-<tbody>
-  <tr>
-    <td class="tg-0pky">1d</td>
-    <td class="tg-0pky">0.288</td>
-    <td class="tg-0lax">0.446</td>
-    <td class="tg-0lax">0.438</td>
-    <td class="tg-0lax">0.513</td>
-  </tr>
-  <tr>
-    <td class="tg-0pky">2d</td>
-    <td class="tg-0pky">0.312</td>
-    <td class="tg-0lax">0.459</td>
-    <td class="tg-0lax"></td>
-    <td class="tg-1wig">0.520</td>
-  </tr>
-</tbody>
-</table>
+
+|    |  hmap | hmap + pretrained DeepSORT | hmap + pretrained FairMOT | hmap + finetuned FairMOT |
+|:--:|:-----:|:--------------------------:|:-------------------------:|:------------------------:|
+| 1d | 0.288 |            0.446           |           0.438           |           0.513          |
+| 2d | 0.312 |            0.459           |                           |           0.520          |
 
 
 ## References
