@@ -5,10 +5,10 @@
 - [x] Use y-coordinate in helmet mapping.
 - [x] Tune FairMOT
 - [x] Evaluate helmet mapping (1D and 2D) + FairMOT (latest)
-- [] Construct inference pipeline: helmet mapping followed by FairMOT
-- [] Make inference notebook work for submission.
-- [] Tweak FairMOT post-processing: (duplicated MOT ids, etc.)
-- [] Post-process with DeepSORT then FairMOT
+- [ ] Construct inference pipeline: helmet mapping followed by FairMOT
+- [ ] Make inference notebook work for submission.
+- [ ] Tweak FairMOT post-processing: (duplicated MOT ids, etc.)
+- [ ] Post-process with DeepSORT then FairMOT
 
 
 ## Filtering out excess NGS positions
