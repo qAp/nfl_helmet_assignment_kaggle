@@ -4,6 +4,11 @@
 - [x] Tune helmet mapping
 - [x] Use y-coordinate in helmet mapping.
 - [x] Tune FairMOT
+- [x] Evaluate helmet mapping (1D and 2D) + FairMOT (latest)
+- [] Construct inference pipeline: helmet mapping followed by FairMOT
+- [] Make inference notebook work for submission.
+- [] Tweak FairMOT post-processing: (duplicated MOT ids, etc.)
+- [] Post-process with DeepSORT then FairMOT
 
 
 ## Filtering out excess NGS positions
@@ -33,6 +38,46 @@ True pitch side for camera: away endzone, NGS rotated by 270 deg.
 <img src="https://github.com/qAp/nfl_helmet_assignment_kaggle/blob/5290172436e765c322372f86aed78733b10a8378/images/home_or_away/home_away_tinit270.png" width="800">
 
 The blue lines of the distance score appear to be mostly below the orange lines, making it obvious to determine which the correct side is, but there are some overlaps, perhaps when the players are in a near symmetrical configuration.
+
+
+## Evaluation on selected train samples
+<style type="text/css">
+.tg  {border-collapse:collapse;border-color:#ccc;border-spacing:0;}
+.tg td{background-color:#fff;border-color:#ccc;border-style:solid;border-width:1px;color:#333;
+  font-family:Arial, sans-serif;font-size:14px;overflow:hidden;padding:10px 5px;word-break:normal;}
+.tg th{background-color:#f0f0f0;border-color:#ccc;border-style:solid;border-width:1px;color:#333;
+  font-family:Arial, sans-serif;font-size:14px;font-weight:normal;overflow:hidden;padding:10px 5px;word-break:normal;}
+.tg .tg-1wig{font-weight:bold;text-align:left;vertical-align:top}
+.tg .tg-0pky{border-color:inherit;text-align:left;vertical-align:top}
+.tg .tg-0lax{text-align:left;vertical-align:top}
+</style>
+<table class="tg">
+<thead>
+  <tr>
+    <th class="tg-0pky"></th>
+    <th class="tg-0pky">hmap</th>
+    <th class="tg-0lax">hmap + pretrained DeepSORT<br></th>
+    <th class="tg-0lax">hmap + pretrained FairMOT</th>
+    <th class="tg-0lax">hmap + finetuned FairMOT</th>
+  </tr>
+</thead>
+<tbody>
+  <tr>
+    <td class="tg-0pky">1d</td>
+    <td class="tg-0pky">0.288</td>
+    <td class="tg-0lax">0.446</td>
+    <td class="tg-0lax">0.438</td>
+    <td class="tg-0lax">0.513</td>
+  </tr>
+  <tr>
+    <td class="tg-0pky">2d</td>
+    <td class="tg-0pky">0.312</td>
+    <td class="tg-0lax">0.459</td>
+    <td class="tg-0lax"></td>
+    <td class="tg-1wig">0.520</td>
+  </tr>
+</tbody>
+</table>
 
 
 ## References
