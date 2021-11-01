@@ -2,13 +2,15 @@
 
 ## TODOs
 - [x] Tune helmet mapping
-- [x] Use y-coordinate in helmet mapping.
+- [x] Use y-coordinate as well in helmet mapping.
 - [x] Tune FairMOT
 - [x] Evaluate helmet mapping (1D and 2D) + FairMOT (latest)
-- [ ] Construct inference pipeline: helmet mapping followed by FairMOT
+- [x] Construct inference pipeline: helmet mapping followed by FairMOT
 - [ ] Make inference notebook work for submission.
-- [ ] Tweak FairMOT post-processing: (duplicated MOT ids, etc.)
+- [x] Don't ffmpeg convert demo's output videos to friendlier formats for submission.
+- [x] Tweak FairMOT post-processing: (duplicated MOT ids, etc.)
 - [ ] Post-process with DeepSORT then FairMOT
+- [ ] Slow down the video at helmet impacts for FairMOT training and inference
 
 
 ## Filtering out excess NGS positions
@@ -39,6 +41,9 @@ True pitch side for camera: away endzone, NGS rotated by 270 deg.
 
 The blue lines of the distance score appear to be mostly below the orange lines, making it obvious to determine which the correct side is, but there are some overlaps, perhaps when the players are in a near symmetrical configuration.
 
+## Fine-tuning FairMOT
+
+
 
 ## Evaluation on selected train samples
 
@@ -46,6 +51,8 @@ The blue lines of the distance score appear to be mostly below the orange lines,
 |:--:|:-----:|:--------------------------:|:-------------------------:|:------------------------:|
 | 1d | 0.288 |            0.446           |           0.438           |           0.513          |
 | 2d | 0.312 |            0.459           |                           |           0.520          |
+
+Here, due to randomness introduced in helmet mapping, all scores based on MOT post-processing use the same instance of helmet mapping result.  e.g. all 1-d post-processing scores are built upon the 0.288 helmet mapping score.  
 
 
 ## References
