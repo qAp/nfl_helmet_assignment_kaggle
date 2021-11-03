@@ -13,9 +13,9 @@ https://www.kaggle.com/c/nfl-health-and-safety-helmet-assignment/overview
 FairMOT: https://github.com/ifzhang/FairMOT
 
 # Key Kaggle Notebooks
-![FairMOT training](https://github.com/qAp/nfl_helmet_assignment_kaggle/blob/b2ca41cad457a2ced3e786d48f1b3c61c0084b48/notebooks/nfl04-fairmot-train.ipynb)
-![Local validation](https://github.com/qAp/nfl_helmet_assignment_kaggle/blob/b2ca41cad457a2ced3e786d48f1b3c61c0084b48/notebooks/nfl01a-eval-results.ipynb)
-![Submission](https://github.com/qAp/nfl_helmet_assignment_kaggle/blob/b2ca41cad457a2ced3e786d48f1b3c61c0084b48/notebooks/nfl07d-submission-notebook.ipynb)
+* ![FairMOT training](https://github.com/qAp/nfl_helmet_assignment_kaggle/blob/b2ca41cad457a2ced3e786d48f1b3c61c0084b48/notebooks/nfl04-fairmot-train.ipynb)
+* ![Local validation](https://github.com/qAp/nfl_helmet_assignment_kaggle/blob/b2ca41cad457a2ced3e786d48f1b3c61c0084b48/notebooks/nfl01a-eval-results.ipynb)
+* ![Submission](https://github.com/qAp/nfl_helmet_assignment_kaggle/blob/b2ca41cad457a2ced3e786d48f1b3c61c0084b48/notebooks/nfl07d-submission-notebook.ipynb)
 
 # Challenge To-Do List
 - [x] Tune helmet mapping
