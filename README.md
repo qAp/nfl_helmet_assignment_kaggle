@@ -3,7 +3,7 @@
 https://www.kaggle.com/c/nfl-health-and-safety-helmet-assignment/overview
 
 ## Solution Overview
-1. Multiple Object Tracking: Train FairMOT to track helmets in videos.
+
 <iframe
     width="640"
     height="480"
@@ -14,7 +14,7 @@ https://www.kaggle.com/c/nfl-health-and-safety-helmet-assignment/overview
 >
 </iframe>
 
-
+1. Multiple Object Tracking: Train FairMOT to track helmets in videos.
 2. Helmet mapping: Map NGS player labels to baseline helmet detections.
 3. Incorporate FairMOT tracks into helmet mapping labels.
 4. Fill in missing labels.
