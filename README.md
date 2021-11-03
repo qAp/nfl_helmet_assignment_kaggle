@@ -1,20 +1,17 @@
 # A solution for NFL Health & Safety - Helmet Assignment Kaggle
 
-<details open>
 ## TODOs
 - [x] Tune helmet mapping
 - [x] Use y-coordinate as well in helmet mapping.
 - [x] Tune FairMOT
 - [x] Evaluate helmet mapping (1D and 2D) + FairMOT (latest)
 - [x] Construct inference pipeline: helmet mapping followed by FairMOT
-- [x] Make inference notebook work for submission.
+- [ ] Make inference notebook work for submission.
 - [x] Don't ffmpeg convert demo's output videos to friendlier formats for submission.
 - [x] Tweak FairMOT post-processing: (duplicated MOT ids, etc.)
-- [ ] Remove helmets of players not in action, or false helmets of other team staff.
-- [ ] Post helmet mapping and FairMOT, if there're still helmets missing a label, randomly select labels from the tracking data that are still unused to make sure all helmets are labelled regardless.
 - [ ] Post-process with DeepSORT then FairMOT
 - [ ] Slow down the video at helmet impacts for FairMOT training and inference
-</details>
+
 
 ## Filtering out excess NGS positions
 When the angle of rotation is good, the filtering algorithm appears to filter out the correct players that are out of view in the camera:
