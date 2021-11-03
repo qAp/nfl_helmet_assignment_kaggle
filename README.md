@@ -1,9 +1,7 @@
 # A solution for NFL Health & Safety - Helmet Assignment Kaggle
-
 https://www.kaggle.com/c/nfl-health-and-safety-helmet-assignment/overview
 
 # Solution Overview
-
 1. Multiple Object Tracking: Train FairMOT to track helmets in videos.
 2. Helmet mapping: Map NGS player labels to baseline helmet detections.
 3. Refine helmet mapping results with FairMOT's predicted tracks.
@@ -12,7 +10,8 @@ https://www.kaggle.com/c/nfl-health-and-safety-helmet-assignment/overview
 # External Packages
 FairMOT: https://github.com/ifzhang/FairMOT
 
-# Key Kaggle Notebooks
+# Key Notebooks
+* ![Helmet mapping](https://github.com/qAp/nfl_helmet_assignment_kaggle/blob/b0db72879338d802ee54bd079bed21fee7ed05d0/notebooks/nfl01e-helmet-mapping-2d.ipynb)
 * ![FairMOT training](https://github.com/qAp/nfl_helmet_assignment_kaggle/blob/b2ca41cad457a2ced3e786d48f1b3c61c0084b48/notebooks/nfl04-fairmot-train.ipynb)
 * ![Local validation](https://github.com/qAp/nfl_helmet_assignment_kaggle/blob/b2ca41cad457a2ced3e786d48f1b3c61c0084b48/notebooks/nfl01a-eval-results.ipynb)
 * ![Submission](https://github.com/qAp/nfl_helmet_assignment_kaggle/blob/b2ca41cad457a2ced3e786d48f1b3c61c0084b48/notebooks/nfl07d-submission-notebook.ipynb)
@@ -59,7 +58,13 @@ True pitch side for camera: away endzone, NGS rotated by 270 deg.
 The blue lines of the distance score appear to be mostly below the orange lines, making it obvious to determine which the correct side is, but there are some overlaps, perhaps when the players are in a near symmetrical configuration.
 
 # FairMOT
+FairMOT:
+* is more recently developed than DeepSORT.
+* tracks by detection.
+* is a one-shot tracker (which means visual features used for detection and association are extracted from the same network).
+* is supposed to have reduced ID switches.
 
+To generate the training set for FairMOT from competition-provided data, see ![nfl03-gen-train-set-fairmot.ipynb](https://github.com/qAp/nfl_helmet_assignment_kaggle/blob/b0db72879338d802ee54bd079bed21fee7ed05d0/notebooks/nfl03-gen-train-set-fairmot.ipynb).
 
 
 # Evaluation on selected train samples
@@ -71,8 +76,23 @@ The blue lines of the distance score appear to be mostly below the orange lines,
 
 Here, due to randomness introduced in helmet mapping, all scores based on MOT post-processing use the same instance of helmet mapping result.  e.g. all 1-d post-processing scores are built upon the 0.288 helmet mapping score.  
 
+# Installing packages for Kaggle submission
+There's no silver bullet, but in general, where there's internet, download packages that will need to be installed (e.g. as listed in requirements.txt) with something like
+```
+pip download -d preinstalls/ cython==1.0.2
+```
+Then, where there's no internet, install downloaded packages with something like
+```
+pip install --no-index --no-deps --find-links=preinstalls -r requirements.txt
+```
 
-## References
+For packages for which the above doesn't work, `pip install` with internet, manually take note of the wheels built and the order in which they are installed.  
+
+Notebooks can be added as a Dataset to another Notebook, so there is no need to download packages to one's local machine and then uploading them to a newly created Dataset.
+
+
+
+# References
 - https://www.kaggle.com/robikscube/nfl-helmet-assignment-getting-started-guide
 - https://www.kaggle.com/its7171/nfl-baseline-simple-helmet-mapping
 - https://www.kaggle.com/robikscube/helper-code-helmet-mapping-deepsort
