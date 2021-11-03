@@ -2,24 +2,17 @@
 
 https://www.kaggle.com/c/nfl-health-and-safety-helmet-assignment/overview
 
-## Solution Overview
-
-<iframe
-    width="640"
-    height="480"
-    src="https://www.youtube.com/embed/UmX4kyB2wfg"
-    frameborder="0"
-    allow="autoplay; encrypted-media"
-    allowfullscreen
->
-</iframe>
+# Solution Overview
 
 1. Multiple Object Tracking: Train FairMOT to track helmets in videos.
 2. Helmet mapping: Map NGS player labels to baseline helmet detections.
-3. Incorporate FairMOT tracks into helmet mapping labels.
-4. Fill in missing labels.
+3. Refine helmet mapping results with FairMOT's predicted tracks.
+4. For labels still missing, fall back to helmet mapping labels.
 
-## TODOs
+# External Packages
+FairMOT: https://github.com/ifzhang/FairMOT
+
+# Challenge To-Do List
 - [x] Tune helmet mapping
 - [x] Use y-coordinate as well in helmet mapping.
 - [x] Tune FairMOT
@@ -31,6 +24,7 @@ https://www.kaggle.com/c/nfl-health-and-safety-helmet-assignment/overview
 - [ ] Post-process with DeepSORT then FairMOT
 - [ ] Slow down the video at helmet impacts for FairMOT training and inference
 
+# Helmet mapping
 ## Filtering out excess NGS positions
 When the angle of rotation is good, the filtering algorithm appears to filter out the correct players that are out of view in the camera:
 <img src="https://github.com/qAp/nfl_helmet_assignment_kaggle/blob/85662dac99363341185d1edf4014c86fe0ac791b/images/ngs_players_filtering/good_theta_good_filtering.png" width="800">
@@ -59,11 +53,11 @@ True pitch side for camera: away endzone, NGS rotated by 270 deg.
 
 The blue lines of the distance score appear to be mostly below the orange lines, making it obvious to determine which the correct side is, but there are some overlaps, perhaps when the players are in a near symmetrical configuration.
 
-## Fine-tuning FairMOT
+# FairMOT
 
 
 
-## Evaluation on selected train samples
+# Evaluation on selected train samples
 
 |    |  hmap | hmap + pretrained DeepSORT | hmap + pretrained FairMOT | hmap + finetuned FairMOT |
 |:--:|:-----:|:--------------------------:|:-------------------------:|:------------------------:|
